@@ -1,7 +1,8 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
 bin
-pyenv.cfg
+pyvenv.cfg
 .env
 include
 lib
 lib64
+
