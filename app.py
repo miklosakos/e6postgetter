@@ -18,13 +18,16 @@ headers = {
         'User-Agent': ua
 }
 auth = (username, apikey)
-def buildresphdr(srcimg):
+def buildresphdr(srcimg, othersources, tags):
+
     resphdrs = {
         'X-Powered-By': 'yiffer.hu app',
         'X-Source-Code': 'https://github.com/miklosakos/e6postgetter',
         'Access-Control-Allow-Origin': '*',
         'X-Source': 'https://e621.net',
-        'X-Image': f'https://e621.net/posts/{srcimg}'
+        'X-Image': f'https://e621.net/posts/{srcimg}',
+        'X-Other-Sources': ",".join(othersources),
+        'X-E6-Tags': ",".join(tags)
     }
     return resphdrs
 
@@ -33,9 +36,12 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     resp = requests.get(url, params=params, headers=headers, auth=auth)
-    img = requests.get(resp.json()['posts'][0]['file']['url'], headers=headers)
-    imgid = resp.json()['posts'][0]['id']
-    return Response(img.content, mimetype=img.headers['Content-Type'], headers=buildresphdr(imgid))
+    base = resp.json()['posts'][0]
+    img = requests.get(base['file']['url'], headers=headers)
+    imgid = base['id']
+    sources = base['sources']
+    tags = base['tags']['general']
+    return Response(img.content, mimetype=img.headers['Content-Type'], headers=buildresphdr(imgid, sources, tags))
 
 if __name__ == '__main__':
     app.run()
