@@ -26,7 +26,7 @@ def buildresphdr(srcimg, othersources, tags, uploader, desc):
         'Access-Control-Allow-Origin': '*',
         'X-Source': 'https://e621.net',
         'E6-Post': f'https://e621.net/posts/{srcimg}',
-        'E6-Other-Sources': ",".join(othersources),
+        'E6-Other-Sources': " ".join(othersources),
         'E6-Tags': ",".join(tags),
         'E6-Uploader': uploader,
         'E6-Desc': desc
