@@ -18,16 +18,18 @@ headers = {
         'User-Agent': ua
 }
 auth = (username, apikey)
-def buildresphdr(srcimg, othersources, tags):
+def buildresphdr(srcimg, othersources, tags, uploader, desc):
 
     resphdrs = {
         'X-Powered-By': 'yiffer.hu app',
         'X-Source-Code': 'https://github.com/miklosakos/e6postgetter',
         'Access-Control-Allow-Origin': '*',
         'X-Source': 'https://e621.net',
-        'X-Image': f'https://e621.net/posts/{srcimg}',
-        'X-Other-Sources': ",".join(othersources),
-        'X-E6-Tags': ",".join(tags)
+        'E6-Post': f'https://e621.net/posts/{srcimg}',
+        'E6-Other-Sources': ",".join(othersources),
+        'E6-Tags': ",".join(tags),
+        'E6-Uploader': uploader,
+        'E6-Desc': desc
     }
     return resphdrs
 
@@ -41,7 +43,9 @@ def index():
     imgid = base['id']
     sources = base['sources']
     tags = base['tags']['general']
-    return Response(img.content, mimetype=img.headers['Content-Type'], headers=buildresphdr(imgid, sources, tags))
+    uploader = base['uploader_name']
+    desc = base['description']
+    return Response(img.content, mimetype=img.headers['Content-Type'], headers=buildresphdr(imgid, sources, tags, uploader, desc))
 
 if __name__ == '__main__':
     app.run()
