@@ -49,9 +49,11 @@ def index():
         inctag[0] = "gay"
         print(inctag[0])
     elif "-" in inctag[0]:
-        tags_str = " ".join(inctag[0].split('-')) 
+        tags_str = " ".join(["rating:safe" if tag == "sfw" else tag for tag in inctag[0].split('-')])
         print(tags_str)
         inctag[0]=tags_str
+    elif inctag[0] == "sfw":
+        inctag[0]="rating:safe"
 
     resp = requests.get(url, params=tagbuilder(inctag[0]), headers=headers, auth=auth)
     if not resp.json().get('posts'):
