@@ -56,7 +56,7 @@ def index():
         inctag[0]="rating:safe"
     elif inctag[0] == "help":
         myurl = ".".join(base_url)
-        return Response(f"Help for {myurl}\n=====================================================================\nVisiting {myurl} or www.{myurl} will default to the 'gay' tag on e621.\nYou can be granular with your tags by specifying a '-' separated list as a subdomain, i.e. fox-gay-safe.{myurl}. This will be the equivalent of fox gay rating:safe on e621.\nThe implementation also allows for tags that have an '_', i.e. chastity_cage-femboy.{myurl}. This will be the equivalent of chastity_cage femboy on e621.\nThe following tags are blacklisted and won't appear in the roster: {blacklisted} to provide some filtering.\nSource code available at https://github.com/miklosakos/e6postgetter\n", status=200, mimetype='text/plain')
+        return Response(f"Help for {myurl}\n=====================================================================\nVisiting {myurl} or www.{myurl} will default to the 'gay' tag on e621.\nYou can be granular with your tags by specifying a '-' separated list as a subdomain, i.e. fox-gay-sfw.{myurl}. This will be the equivalent of fox gay rating:safe on e621.\nThe implementation also allows for tags that have an '_', i.e. chastity_cage-femboy.{myurl}. This will be the equivalent of chastity_cage femboy on e621.\nThe following tags are blacklisted and won't appear in the roster: {blacklisted} to provide some filtering.\nSource code available at https://github.com/miklosakos/e6postgetter\n", status=200, mimetype='text/plain')
 
     resp = requests.get(url, params=tagbuilder(inctag[0]), headers=headers, auth=auth)
     if not resp.json().get('posts'):
