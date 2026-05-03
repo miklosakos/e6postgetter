@@ -1,5 +1,5 @@
 import requests, os 
-from flask import Flask, Response
+from flask import Flask, Response, request
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -7,19 +7,22 @@ username = os.getenv("username")
 apikey = os.getenv("apikey")
 tags = os.getenv("tags")
 rating = os.getenv("rating")
+blacklisted = os.getenv("blacklisted_tags")
 ua = f"yiffer.hu/1.0 ({username})"
 url = "https://e621.net/posts.json"
-
-params = {
-        'tags': f'{tags} rating:{rating} order:random',
+def tagbuilder(inctag):
+    print(inctag)
+    params = {
+        'tags': f'{tags} {inctag} {blacklisted} rating:{rating} order:random',
         'limit': 1 
-}
+    }
+    return params
+
 headers = {
         'User-Agent': ua
 }
 auth = (username, apikey)
 def buildresphdr(srcimg, othersources, tags, uploader, desc):
-
     resphdrs = {
         'X-Powered-By': 'yiffer.hu app',
         'X-Source-Code': 'https://github.com/miklosakos/e6postgetter',
@@ -37,15 +40,30 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    resp = requests.get(url, params=params, headers=headers, auth=auth)
+    hosthdr = request.headers.get('Host', '')
+    inctag = hosthdr.split('.')
+    resp = requests.get(url, params=tagbuilder(inctag[0]), headers=headers, auth=auth)
+
+    if not resp.json().get('posts'):
+        resp = requests.get(url, params=tagbuilder("gay"), headers=headers, auth=auth)
+
     base = resp.json()['posts'][0]
+
+    if not base.get('file') or not base['file'].get('url'):
+        return Response("No image URL found.", status=404, mimetype='text/plain')
+
     img = requests.get(base['file']['url'], headers=headers)
     imgid = base['id']
     sources = base['sources']
     tags = base['tags']['general']
     uploader = base['uploader_name']
     desc = base['description']
-    return Response(img.content, mimetype=img.headers['Content-Type'], headers=buildresphdr(imgid, sources, tags, uploader, desc))
+    raw_headers = buildresphdr(imgid, sources, tags, uploader, desc)
+    clean_headers = {
+        k: str(v).replace('\n', ' ').replace('\r', '').strip().encode('ascii', 'ignore').decode('ascii')
+        for k, v in raw_headers.items()
+    }
+    return Response(img.content, mimetype=img.headers['Content-Type'], headers=clean_headers)
 
 if __name__ == '__main__':
     app.run()
