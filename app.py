@@ -8,6 +8,8 @@ apikey = os.getenv("apikey")
 tags = os.getenv("tags")
 rating = os.getenv("rating")
 blacklisted = os.getenv("blacklisted_tags")
+base_url = os.getenv("base_url")
+base_url = base_url.split('.')
 ua = f"yiffer.hu/1.0 ({username})"
 url = "https://e621.net/posts.json"
 def tagbuilder(inctag):
@@ -42,8 +44,11 @@ app = Flask(__name__)
 def index():
     hosthdr = request.headers.get('Host', '')
     inctag = hosthdr.split('.')
-    resp = requests.get(url, params=tagbuilder(inctag[0]), headers=headers, auth=auth)
+    if inctag[0] == base_url[0] or inctag[0] == "www":
+        inctag[0] = "gay"
+        print(inctag[0])
 
+    resp = requests.get(url, params=tagbuilder(inctag[0]), headers=headers, auth=auth)
     if not resp.json().get('posts'):
         resp = requests.get(url, params=tagbuilder("gay"), headers=headers, auth=auth)
 
