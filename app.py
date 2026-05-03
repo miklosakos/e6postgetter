@@ -44,9 +44,14 @@ app = Flask(__name__)
 def index():
     hosthdr = request.headers.get('Host', '')
     inctag = hosthdr.split('.')
+    tags_str=""
     if inctag[0] == base_url[0] or inctag[0] == "www":
         inctag[0] = "gay"
         print(inctag[0])
+    elif "-" in inctag[0]:
+        tags_str = " ".join(inctag[0].split('-')) 
+        print(tags_str)
+        inctag[0]=tags_str
 
     resp = requests.get(url, params=tagbuilder(inctag[0]), headers=headers, auth=auth)
     if not resp.json().get('posts'):
