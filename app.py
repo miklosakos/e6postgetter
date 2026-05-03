@@ -25,6 +25,13 @@ headers = {
 }
 auth = (username, apikey)
 def buildresphdr(srcimg, othersources, tags, uploader, desc):
+    e6tags = ",".join(tags)
+    if len(e6tags) > 100:
+        e6tags = e6tags[:97] + "..."
+
+    if len(desc) > 100:
+        desc = desc[:97] + "..."
+
     resphdrs = {
         'X-Powered-By': 'yiffer.hu app',
         'X-Source-Code': 'https://github.com/miklosakos/e6postgetter',
@@ -32,7 +39,7 @@ def buildresphdr(srcimg, othersources, tags, uploader, desc):
         'X-Source': 'https://e621.net',
         'E6-Post': f'https://e621.net/posts/{srcimg}',
         'E6-Other-Sources': " ".join(othersources),
-        'E6-Tags': ",".join(tags),
+        'E6-Tags': e6tags,
         'E6-Uploader': uploader,
         'E6-Desc': desc
     }
