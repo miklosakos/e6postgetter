@@ -6,6 +6,7 @@ load_dotenv()
 username = os.getenv("username")
 apikey = os.getenv("apikey")
 tags = os.getenv("tags")
+
 rating = os.getenv("rating")
 blacklisted = os.getenv("blacklisted_tags")
 base_url = os.getenv("base_url")
@@ -63,7 +64,11 @@ def index():
         inctag[0]="rating:safe"
     elif inctag[0] == "help":
         myurl = ".".join(base_url)
-        return Response(f"Help for {myurl}\n=====================================================================\nVisiting {myurl} or www.{myurl} will default to the 'gay' tag on e621.\nYou can be granular with your tags by specifying a '-' separated list as a subdomain, i.e. fox-gay-sfw.{myurl}. This will be the equivalent of fox gay rating:safe on e621.\nThe implementation also allows for tags that have an '_', i.e. chastity_cage-femboy.{myurl}. This will be the equivalent of chastity_cage femboy on e621.\nThe following tags are blacklisted and won't appear in the roster: {blacklisted} to provide some filtering.\nSource code available at https://github.com/miklosakos/e6postgetter\n", status=200, mimetype='text/plain')
+        if os.getenv("tags") == "" or os.getenv("tags") is None:
+            taginfo = "The following tags are used globally: none"
+        else:
+            taginfo = f"The following tags are used globally: {os.getenv("tags")}"
+        return Response(f"Help for {myurl}\n=====================================================================\nVisiting {myurl} or www.{myurl} will default to the 'gay' tag on e621.\nYou can be granular with your tags by specifying a '-' separated list as a subdomain, i.e. fox-gay-sfw.{myurl}. This will be the equivalent of fox gay rating:safe on e621.\n!! WARNING !!\nSometimes posts on e621 are mislabeled and/or misrated and thus NSFW content may still appear despite the sfw/rating:safe search tag! Always proceed with caution and the expectation you'll see NSFW content!\n!! WARNING !!\nThe implementation also allows for tags that have an '_', i.e. chastity_cage-femboy.{myurl}. This will be the equivalent of chastity_cage femboy on e621.\n{taginfo}\nThe following tags are blacklisted and won't appear in the roster: {blacklisted} to provide some filtering.\nSource code available at https://github.com/miklosakos/e6postgetter\n", status=200, mimetype='text/plain')
 
     resp = requests.get(url, params=tagbuilder(inctag[0]), headers=headers, auth=auth)
     if not resp.json().get('posts'):
