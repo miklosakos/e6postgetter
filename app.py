@@ -102,6 +102,10 @@ def index():
     }
     return Response(img.content, mimetype=img.headers['Content-Type'], headers=clean_headers)
 
+@app.route('/favicon.ico')
+def favicon():
+    return Response(status=404)
+
 if attack_bots:
     @app.route('/<path:subpath>')
     def attack(subpath):
