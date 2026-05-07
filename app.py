@@ -11,6 +11,9 @@ rating = os.getenv("rating")
 blacklisted = os.getenv("blacklisted_tags")
 base_url = os.getenv("base_url")
 base_url = base_url.split('.')
+
+attack_bots = os.getenv("attack_bots")
+
 ua = f"yiffer.hu/1.0 ({username})"
 url = "https://e621.net/posts.json"
 def tagbuilder(inctag):
@@ -45,6 +48,13 @@ def buildresphdr(srcimg, othersources, tags, uploader, desc):
         'E6-Desc': desc
     }
     return resphdrs
+
+def nuke_bots(total_bytes, chunk_size = 4*1024*1024):
+    bytes_sent = 0
+    while bytes_sent < total_bytes:
+        to_read = min(chunk_size, total_bytes - bytes_sent)
+        yield os.urandom(to_read)
+        bytes_sent =+ to_read
 
 app = Flask(__name__)
 
@@ -91,6 +101,16 @@ def index():
         for k, v in raw_headers.items()
     }
     return Response(img.content, mimetype=img.headers['Content-Type'], headers=clean_headers)
+
+if attack_bots:
+    @app.route('/<path:subpath>')
+    def attack(subpath):
+       garbage_amount=1024**5
+       return Response(
+               nuke_bots(garbage_amount),
+               mimetype='image/png',
+                headers={"Content-Length": str(garbage_amount)}
+               )
 
 if __name__ == '__main__':
     app.run()
