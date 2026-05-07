@@ -112,7 +112,7 @@ if attack_bots:
        garbage_amount=1024**5
        return Response(
                nuke_bots(garbage_amount),
-               mimetype='image/png',
+               mimetype='text/plain',
                 headers={"Content-Length": str(garbage_amount)}
                )
 
