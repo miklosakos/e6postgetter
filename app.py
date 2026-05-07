@@ -103,6 +103,7 @@ def index():
     return Response(img.content, mimetype=img.headers['Content-Type'], headers=clean_headers)
 
 @app.route('/favicon.ico')
+@app.route('/sitemap.xml')
 def favicon():
     return Response(status=404)
 
