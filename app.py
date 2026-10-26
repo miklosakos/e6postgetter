@@ -1,4 +1,4 @@
-import requests, os 
+import requests, os, subprocess
 from flask import Flask, Response, request
 from dotenv import load_dotenv
 
@@ -6,13 +6,14 @@ load_dotenv()
 username = os.getenv("username")
 apikey = os.getenv("apikey")
 tags = os.getenv("tags")
-
+gitcommit = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).strip().decode("utf-8")
 rating = os.getenv("rating")
 blacklisted = os.getenv("blacklisted_tags")
 base_url = os.getenv("base_url")
 base_url = base_url.split('.')
 default_tags = os.getenv("default_tags")
-ua = f"yiffer.hu/1.0 ({username})"
+attack_bots = os.getenv("attack_bots")
+ua = f"{".".join(base_url)}/{gitcommit} ({username})"
 url = "https://e621.net/posts.json"
 def tagbuilder(inctag):
     print(inctag)
@@ -35,7 +36,7 @@ def buildresphdr(srcimg, othersources, tags, uploader, desc):
         desc = desc[:97] + "..."
 
     resphdrs = {
-        'X-Powered-By': 'yiffer.hu app',
+        'X-Powered-By': f'{".".join(base_url)} app',
         'X-Source-Code': 'https://github.com/miklosakos/e6postgetter',
         'Access-Control-Allow-Origin': '*',
         'X-Source': 'https://e621.net',
