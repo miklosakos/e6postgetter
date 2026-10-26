@@ -11,13 +11,7 @@ rating = os.getenv("rating")
 blacklisted = os.getenv("blacklisted_tags")
 base_url = os.getenv("base_url")
 base_url = base_url.split('.')
-<<<<<<< HEAD
-
-attack_bots = os.getenv("attack_bots")
-
-=======
 default_tags = os.getenv("default_tags")
->>>>>>> 1de5297 (added dynamic default tags)
 ua = f"yiffer.hu/1.0 ({username})"
 url = "https://e621.net/posts.json"
 def tagbuilder(inctag):
