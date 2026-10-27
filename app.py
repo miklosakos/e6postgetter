@@ -14,6 +14,125 @@ base_url = base_url.split('.')
 default_tags = os.getenv("default_tags")
 attack_bots = os.getenv("attack_bots")
 ua = f"{".".join(base_url)}/{gitcommit} ({username})"
+notfoundhtml = """
+<html>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+<style>
+:root {
+            --bg-color: #0d0d11;
+            --text-color: #e0e0e0;
+            --muted-color: #888899;
+            --glitch-cyan: #00ffff;
+            --glitch-magenta: #ff0055;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: monospace;
+        }
+
+        body {
+            display: grid;
+            place-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .content {
+            z-index: 3;
+            position: relative;
+        }
+
+        .sadface {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 0 0 1rem 0;
+            display: inline-block;
+        }
+
+        .msg {
+            font-size: 1.1rem;
+            color: var(--muted-color);
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .highlight {
+            color: var(--glitch-cyan);
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.3),
+                rgba(0, 0, 0, 0.3) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0,255,255,0.03), rgba(255,0,85,0.03));
+            pointer-events: none;
+            z-index: 1;
+            animation: glitch-anim 2s infinite steps(2, start);
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                transform: translate(0, 0);
+                clip-path: inset(10% 0 70% 0);
+            }
+            20% {
+                transform: translate(-5px, 5px);
+                clip-path: inset(40% 0 30% 0);
+            }
+            40% {
+                transform: translate(5px, -5px);
+                clip-path: inset(80% 0 5% 0);
+            }
+            60% {
+                transform: translate(-2px, 2px);
+                clip-path: inset(20% 0 50% 0);
+            }
+            80% {
+                transform: translate(3px, -3px);
+                clip-path: inset(60% 0 10% 0);
+            }
+            100% {
+                transform: translate(0, 0);
+                clip-path: inset(30% 0 40% 0);
+            }
+        }
+</style>
+</head>
+<body>
+<div class="content">
+<p class="sadface">:(</p>
+<p class="msg">Looked far and wide and the great e6 returned nothing.</p>
+</div>
+</body>
+</html>
+"""
 url = "https://e621.net/posts.json"
 def tagbuilder(inctag):
     print(inctag)
@@ -81,12 +200,12 @@ def index():
 
     resp = requests.get(url, params=tagbuilder(inctag[0]), headers=headers, auth=auth)
     if not resp.json().get('posts'):
-        resp = requests.get(url, params=tagbuilder("gay"), headers=headers, auth=auth)
+        return Response(notfoundhtml, status=404, mimetype='text/html')
 
     base = resp.json()['posts'][0]
 
     if not base.get('file') or not base['file'].get('url'):
-        return Response("No image URL found.", status=404, mimetype='text/plain')
+        return Response(notfoundhtml, status=404, mimetype='text/html')
 
     img = requests.get(base['file']['url'], headers=headers)
     imgid = base['id']
