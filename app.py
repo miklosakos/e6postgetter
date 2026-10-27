@@ -1,6 +1,7 @@
 import requests, os, subprocess, io, base64
 from flask import Flask, Response, request, send_file
 from dotenv import load_dotenv
+from datetime import datetime, timezone
 
 load_dotenv()
 username = os.getenv("username")
@@ -133,7 +134,21 @@ notfoundhtml = """
 </div>
 </body>
 </html>
+
 """
+def sitemapbuilder(url):
+    return f'''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <sitemap>
+        <url>
+            <loc>https://{url}</loc>
+            <lastmod>{datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}</lastmod>
+            <changefreq>always</changefreq>
+            <priority>1.0</priority>
+        </url>
+    </sitemap>
+</urlset>'''
+
 url = "https://e621.net/posts.json"
 def tagbuilder(inctag):
     print(inctag)
@@ -229,7 +244,7 @@ def favicon():
 
 @app.route('/sitemap.xml')
 def sitemap():
-    return Response(notfoundhtml, status=404, mimetype='text/html')
+    return Response(sitemapbuilder(request.headers.get('Host', '')), status=200, mimetype='application/xml')
 
 if attack_bots:
     @app.route('/<path:subpath>')
