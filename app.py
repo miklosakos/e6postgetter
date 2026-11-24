@@ -215,18 +215,17 @@ def index():
         return Response(f"Help for {myurl}\n=====================================================================\nVisiting {myurl} or www.{myurl} will default to the '{default_tags}' tag(s) on e621.\nYou can be granular with your tags by specifying a '-' separated list as a subdomain, i.e. fox-gay-sfw.{myurl}. This will be the equivalent of fox gay rating:safe on e621.\n!! WARNING !!\nSometimes posts on e621 are mislabeled and/or misrated and thus NSFW content may still appear despite the sfw/rating:safe search tag! Always proceed with caution and the expectation you'll see NSFW content!\n!! WARNING !!\nThe implementation also allows for tags that have an '_', i.e. chastity_cage-femboy.{myurl}. This will be the equivalent of chastity_cage femboy on e621.\n{taginfo}\nThe following filter is used for ratings: {rating}\nThe following tags are blacklisted and won't appear in the roster: {blacklisted} to provide some filtering.\nSource code available at https://github.com/miklosakos/e6postgetter\n", status=200, mimetype='text/plain')
 
     resp = requests.get(url, params=tagbuilder(inctag[0]), headers=headers, auth=auth)
-    if not resp.json().get('posts'):
+
+    base = resp.json()[0]
+    print(base)
+
+    if not base.get('files') or not base['files']['original'].get('url'):
         return Response(notfoundhtml, status=404, mimetype='text/html')
 
-    base = resp.json()['posts'][0]
-
-    if not base.get('file') or not base['file'].get('url'):
-        return Response(notfoundhtml, status=404, mimetype='text/html')
-
-    img = requests.get(base['file']['url'], headers=headers)
+    img = requests.get(base['files']['original']['url'], headers=headers)
     imgid = base['id']
     sources = base['sources']
-    tags = base['tags']['general']
+    tags = base['tags']
     uploader = base['uploader_name']
     desc = base['description']
     raw_headers = buildresphdr(imgid, sources, tags, uploader, desc)
